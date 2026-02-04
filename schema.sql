@@ -1,10 +1,12 @@
+CREATE DATABASE IF NOT EXISTS complaint_db;
+USE complaint_db;
 
-CREATE TABLE complaints (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    email VARCHAR(100),
-    category VARCHAR(50),
-    description TEXT,
-    status VARCHAR(20),
-    created_at DATETIME
+CREATE TABLE IF NOT EXISTS complaints (
+    roll_no VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    description TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'Open',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

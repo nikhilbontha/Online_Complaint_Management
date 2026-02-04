@@ -1,20 +1,22 @@
-
 # Online Complaint Management System
 
 ## Features
-- Submit complaints
-- Auto-generate Complaint ID
-- Admin panel to view and update status
-- Search complaint by ID
+- Manual Roll Number entry
+- Complaint registration
+- MySQL database storage
+- Admin panel (no login)
+- View & update complaint status
+- Search complaint by roll number
 
-## Tech Stack
-- Streamlit
+## Technologies Used
 - Python
-- SQLite
+- Streamlit
+- MySQL
 
 ## How to Run
-```bash
-pip install streamlit
-streamlit run app.py
-streamlit run admin.py
-```
+1. Execute schema.sql in MySQL
+2. Install dependencies:
+   pip install streamlit mysql-connector-python
+3. Run:
+   python -m streamlit run app.py
+   python -m streamlit run admin.py

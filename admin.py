@@ -1,34 +1,72 @@
-
 import streamlit as st
-import sqlite3
+import mysql.connector
 
-conn = sqlite3.connect("complaints.db", check_same_thread=False)
+def get_connection():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",   # change if required
+        database="complaint_db"
+    )
+
+st.title("📋 Admin Complaint Management")
+
+menu = st.sidebar.selectbox(
+    "Admin Menu",
+    ["View All Complaints", "Search by Roll Number"]
+)
+
+conn = get_connection()
 cursor = conn.cursor()
 
-st.sidebar.title("Admin Panel")
-option = st.sidebar.selectbox("Menu", ["View Complaints", "Search by ID"])
-
-if option == "View Complaints":
+# 🔹 VIEW ALL COMPLAINTS
+if menu == "View All Complaints":
     cursor.execute("SELECT * FROM complaints")
-    rows = cursor.fetchall()
-    for row in rows:
-        with st.expander(f"Complaint ID: {row[0]}"):
-            st.write(f"Name: {row[1]}")
-            st.write(f"Email: {row[2]}")
-            st.write(f"Category: {row[3]}")
-            st.write(f"Description: {row[4]}")
-            status = st.selectbox("Status", ["Open", "In Progress", "Closed"], index=["Open","In Progress","Closed"].index(row[5]), key=row[0])
-            if st.button("Update Status", key=f"btn{row[0]}"):
-                cursor.execute("UPDATE complaints SET status=? WHERE id=?", (status, row[0]))
-                conn.commit()
-                st.success("Status Updated")
+    complaints = cursor.fetchall()
 
-if option == "Search by ID":
-    cid = st.number_input("Enter Complaint ID", min_value=1)
+    for c in complaints:
+        with st.expander(f"Roll Number: {c[0]}"):
+            st.write("Name:", c[1])
+            st.write("Email:", c[2])
+            st.write("Category:", c[3])
+            st.write("Description:", c[4])
+            st.write("Created At:", c[6])
+
+            status = st.selectbox(
+                "Update Status",
+                ["Open", "In Progress", "Closed"],
+                index=["Open", "In Progress", "Closed"].index(c[5]),
+                key=c[0]
+            )
+
+            if st.button("Update Status", key=f"btn{c[0]}"):
+                cursor.execute(
+                    "UPDATE complaints SET status=%s WHERE roll_no=%s",
+                    (status, c[0])
+                )
+                conn.commit()
+                st.success("✅ Status Updated")
+
+# 🔹 SEARCH BY ROLL NUMBER
+if menu == "Search by Roll Number":
+    roll_no = st.text_input("Enter Roll Number")
+
     if st.button("Search"):
-        cursor.execute("SELECT * FROM complaints WHERE id=?", (cid,))
-        row = cursor.fetchone()
-        if row:
-            st.write(row)
+        cursor.execute(
+            "SELECT * FROM complaints WHERE roll_no=%s",
+            (roll_no,)
+        )
+        result = cursor.fetchone()
+
+        if result:
+            st.write("Roll Number:", result[0])
+            st.write("Name:", result[1])
+            st.write("Email:", result[2])
+            st.write("Category:", result[3])
+            st.write("Description:", result[4])
+            st.write("Status:", result[5])
+            st.write("Created At:", result[6])
         else:
-            st.error("Complaint not found")
+            st.error("❌ Complaint not found")
+
+conn.close()
